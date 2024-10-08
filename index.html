@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pong avec Phaser</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Affichage de la question -->
+
+    <div class="question-container">
+      <p id="question" style="text-align: center; font-size: 24px"></p>
+      <div id="game-container">
+        <!-- Panneau pour choisir la difficulté de la balle -->
+        <button id="open-panel">⚙️🛈</button>
+        <div class="panel">
+          <p>Vitesse de la balle</p>
+          <div class="radio-btns">
+            <label>
+              <input type="radio" name="ball-difficulty" value="easy" checked />
+              Facile
+            </label>
+            <label>
+              <input type="radio" name="ball-difficulty" value="medium" />
+              Moyenne
+            </label>
+            <label>
+              <input type="radio" name="ball-difficulty" value="hard" />
+              Difficile
+            </label>
+          </div>
+
+          <p>Difficulté des questions</p>
+          <div class="radio-btns">
+            <label>
+              <input
+                type="radio"
+                name="question-difficulty"
+                value="0"
+                checked
+              />
+              Facile
+            </label>
+            <label>
+              <input type="radio" name="question-difficulty" value="1" />
+              Moyenne
+            </label>
+            <label>
+              <input type="radio" name="question-difficulty" value="2" />
+              Difficile
+            </label>
+          </div>
+          <button id="set-difficulty">Jouer</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="scripts/index.js"></script>
+  </body>
+</html>

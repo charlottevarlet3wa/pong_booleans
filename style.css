@@ -1,0 +1,65 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.question-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 700px;
+}
+
+#game-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+}
+
+.panel {
+  position: absolute;
+  background-color: rgba(233, 216, 216, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+  height: 80%;
+  border-radius: 8px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  gap: 8px;
+}
+
+.panel p {
+  font-weight: bolder;
+  color: #770a0b;
+}
+
+.panel button {
+  padding: 4px;
+  border-radius: 4px;
+  border: 2px solid #440a77;
+  color: #440a77;
+}
+
+.panel button:active {
+  background-color: #d7d7d7;
+}
+
+#open-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+canvas {
+  border-radius: 8px;
+}

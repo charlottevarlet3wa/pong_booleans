@@ -1,0 +1,32 @@
+[
+    [
+      { "question": "3 > 2", "answer": true },
+      { "question": "true", "answer": true },
+      { "question": "false", "answer": false },
+      { "question": "2 == 2", "answer": true },
+      { "question": "2 === 2", "answer": true },
+      { "question": "2 != 2", "answer": false },
+      { "question": "3 < 2", "answer": false },
+      { "question": "!false", "answer": true },
+      { "question": "!true", "answer": false }
+    ],
+    [
+      { "question": "2 == 2", "answer": true },
+      { "question": "!(2 == 2)", "answer": false },
+      { "question": "true && false", "answer": false },
+      { "question": "true || false", "answer": true },
+      { "question": "!(true && false)", "answer": true },
+      { "question": "!(true || false)", "answer": false }
+    ],
+    [
+      { "question": "(2 > 1) && (3 < 4)", "answer": true },
+      { "question": "(2 > 1) && (3 > 4)", "answer": false },
+      { "question": "(2 > 1) || (3 < 4)", "answer": true },
+      { "question": "(2 > 3) || (3 < 4)", "answer": true },
+      { "question": "!(2 > 3) && (3 < 4)", "answer": true },
+      { "question": "!(2 < 3) && (3 > 4)", "answer": false },
+      { "question": "true && !false", "answer": true },
+      { "question": "false || !true", "answer": false }
+    ]
+  ]
+  
