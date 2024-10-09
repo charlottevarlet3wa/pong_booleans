@@ -15,7 +15,7 @@ export default class Question {
 
   // Charger les questions à partir du fichier JSON
   async loadQuestions() {
-    const response = await fetch("/public/data/questions.json");
+    const response = await fetch("./public/data/questions.json");
     this.questions = await response.json();
   }
 
