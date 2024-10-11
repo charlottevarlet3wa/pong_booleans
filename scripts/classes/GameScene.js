@@ -9,6 +9,7 @@ export default class GameScene extends Phaser.Scene {
     super({ key: "GameScene" });
     this.isStarted = false;
     this.difficulty = "easy";
+    this.pointerAssignments = {}; // Pour assigner chaque pointer à gauche ou droite
     this.questionDifficulty = 0; // Niveau de difficulté par défaut pour les questions
   }
 
@@ -79,8 +80,14 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // Ajouter les contrôles tactiles
+    // this.input.on("pointerdown", this.handlePointerDown, this);
+    // this.input.on("pointermove", this.handlePointerMove, this); // Pour le mouvement continu
+
+    // Activer le contrôle multitouch
+    this.input.addPointer(1); // Permettre plusieurs inputs tactiles
     this.input.on("pointerdown", this.handlePointerDown, this);
-    this.input.on("pointermove", this.handlePointerMove, this); // Pour le mouvement continu
+    this.input.on("pointermove", this.handlePointerMove, this);
+    this.input.on("pointerup", this.handlePointerUp, this); // Libérer le contrôle
   }
 
   update() {
@@ -141,33 +148,63 @@ export default class GameScene extends Phaser.Scene {
     this.ball.setDifficulty(difficulty);
   }
 
-  // Méthode pour gérer les interactions tactiles ou clics
   handlePointerDown(pointer) {
-    // Si la balle est en pause (soit au début, soit après un reset), relancer la balle
     if (!this.isStarted) {
-      this.start(); // Lancer la balle si elle est en pause
+      this.start();
       return;
     }
 
-    // Contrôle des raquettes via le clic/toucher
+    // Assigner le pointer à gauche ou à droite
+    this.pointerAssignments[pointer.id] =
+      pointer.x < this.game.config.width / 2 ? "left" : "right";
+
     this.updatePaddlePosition(pointer);
   }
 
   handlePointerMove(pointer) {
-    if (this.isStarted) {
-      // Contrôle des raquettes via le mouvement du doigt ou de la souris
-      this.updatePaddlePosition(pointer);
-    }
+    this.updatePaddlePosition(pointer);
   }
 
-  // Méthode pour déplacer les paddles selon la position du clic ou toucher
+  handlePointerUp(pointer) {
+    delete this.pointerAssignments[pointer.id]; // Libérer le contrôle du paddle
+  }
+
   updatePaddlePosition(pointer) {
-    if (pointer.x < this.game.config.width / 2) {
-      // Mouvement sur la partie gauche de l'écran : contrôle du paddle gauche
+    const side = this.pointerAssignments[pointer.id];
+
+    if (side === "left" && pointer.x < this.game.config.width / 2) {
       this.playerLeft.setY(pointer.y);
-    } else {
-      // Mouvement sur la partie droite de l'écran : contrôle du paddle droit
+    } else if (side === "right" && pointer.x >= this.game.config.width / 2) {
       this.playerRight.setY(pointer.y);
     }
   }
+  // // Méthode pour gérer les interactions tactiles ou clics
+  // handlePointerDown(pointer) {
+  //   // Si la balle est en pause (soit au début, soit après un reset), relancer la balle
+  //   if (!this.isStarted) {
+  //     this.start(); // Lancer la balle si elle est en pause
+  //     return;
+  //   }
+
+  //   // Contrôle des raquettes via le clic/toucher
+  //   this.updatePaddlePosition(pointer);
+  // }
+
+  // handlePointerMove(pointer) {
+  //   if (this.isStarted) {
+  //     // Contrôle des raquettes via le mouvement du doigt ou de la souris
+  //     this.updatePaddlePosition(pointer);
+  //   }
+  // }
+
+  // // Méthode pour déplacer les paddles selon la position du clic ou toucher
+  // updatePaddlePosition(pointer) {
+  //   if (pointer.x < this.game.config.width / 2) {
+  //     // Mouvement sur la partie gauche de l'écran : contrôle du paddle gauche
+  //     this.playerLeft.setY(pointer.y);
+  //   } else {
+  //     // Mouvement sur la partie droite de l'écran : contrôle du paddle droit
+  //     this.playerRight.setY(pointer.y);
+  //   }
+  // }
 }
