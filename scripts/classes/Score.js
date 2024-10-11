@@ -3,8 +3,9 @@ export default class Score {
     this.scene = scene;
     this.score = initialScore;
     this.scoreText = this.scene.add.text(x, y, "Score: " + this.score, {
-      fontSize: "32px",
-      fill: "#FFF",
+      fontFamily: "Arial", // Remplace par la police de ton choix
+      fontSize: "1.2rem", // Taille de la police
+      fill: "#FFF", // Couleur du texte
     });
   }
 

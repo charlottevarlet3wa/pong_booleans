@@ -16,8 +16,6 @@ export default class GameScene extends Phaser.Scene {
   preload() {
     this.load.image("paddle", "assets/images/paddle_true.png");
     this.load.image("ball", "assets/images/ball.png");
-    this.load.image("basketTrue", "assets/images/basket_true.png");
-    this.load.image("basketFalse", "assets/images/basket_false.png");
   }
 
   create() {
@@ -34,9 +32,9 @@ export default class GameScene extends Phaser.Scene {
     this.ball.reset();
     this.ball.setDepth(1);
 
-    // Créer le panier en utilisant la classe Basket
-    this.basketTrue = new Basket(this, 400, 300, true);
-    this.basketFalse = new Basket(this, 400, 100, false);
+    // Créer les paniers comme cercles
+    this.basketTrue = new Basket(this, 400, 300, true); // Panier vert
+    this.basketFalse = new Basket(this, 400, 100, false); // Panier rouge
 
     // Créer une instance de Score
     this.score = new Score(this, 16, 16); // Texte en haut à gauche
@@ -44,7 +42,7 @@ export default class GameScene extends Phaser.Scene {
     // Créer une instance de Question (le texte sera affiché dans l'élément HTML <p id="question">)
     this.question = new Question(this, "question", this.questionDifficulty);
 
-    // Activer les collisions
+    // Activer les collisions entre la balle et les raquettes
     this.physics.add.collider(this.ball, this.playerLeft, () => {
       this.ball.onPaddleHit(this.playerLeft);
     });
@@ -53,18 +51,19 @@ export default class GameScene extends Phaser.Scene {
       this.ball.onPaddleHit(this.playerRight);
     });
 
-    // Collision entre la balle et le panier
+    // Activer les collisions entre la balle et les paniers
+    this.ball.isInBasket = false; // Ajouter un état booléen pour gérer l'entrée/sortie du panier
     this.physics.add.overlap(
       this.ball,
       this.basketTrue,
-      this.scorePoint,
+      () => this.handleBasketCollision(this.basketTrue),
       null,
       this
     );
     this.physics.add.overlap(
       this.ball,
       this.basketFalse,
-      this.scorePoint,
+      () => this.handleBasketCollision(this.basketFalse),
       null,
       this
     );
@@ -78,10 +77,6 @@ export default class GameScene extends Phaser.Scene {
       downRight: Phaser.Input.Keyboard.KeyCodes.M,
       space: Phaser.Input.Keyboard.KeyCodes.SPACE,
     });
-
-    // Ajouter les contrôles tactiles
-    // this.input.on("pointerdown", this.handlePointerDown, this);
-    // this.input.on("pointermove", this.handlePointerMove, this); // Pour le mouvement continu
 
     // Activer le contrôle multitouch
     this.input.addPointer(1); // Permettre plusieurs inputs tactiles
@@ -116,12 +111,78 @@ export default class GameScene extends Phaser.Scene {
   reset() {
     this.ball.reset();
     this.isStarted = false; // Repasser en mode pause (la balle ne bouge pas)
+    this.ball.isInBasket = false; // Réinitialiser l'état de collision du panier
+  }
+
+  handleBasketCollision(basket) {
+    // Si la balle est déjà entrée dans un panier, on ne fait rien
+    if (this.ball.isInBasket) return;
+
+    // Détecter la collision à l'entrée dans le panier
+    this.ball.isInBasket = true;
+
+    const isCorrect = this.question.isCorrectBasket(basket);
+
+    // Si la réponse est correcte
+    if (isCorrect) {
+      if (basket.fillColor === 0x00ff00) {
+        this.animateCircle(this, basket.x, basket.y, true, 0x00ff00); // Animation cercle filled vert
+      } else {
+        this.animateCircle(this, basket.x, basket.y, true, 0xff0000); // Animation cercle filled rouge
+      }
+    } else {
+      // Réponse incorrecte, animation avec stroke (contour)
+      this.animateCircle(this, basket.x, basket.y, false, basket.fillColor);
+    }
+
+    this.scorePoint(this.ball, basket);
+  }
+
+  animateCircle(scene, x, y, filled, color) {
+    if (filled) {
+      // Cercle filled
+      const bridgeCircle = scene.add.circle(x, y, 1, color);
+      scene.tweens.add({
+        targets: bridgeCircle,
+        radius: 50,
+        duration: 800,
+        ease: "Cubic.easeOut",
+        onComplete: () => {
+          scene.tweens.add({
+            targets: bridgeCircle,
+            alpha: 0,
+            duration: 350,
+            onComplete: () => {
+              bridgeCircle.destroy();
+            },
+          });
+        },
+      });
+    } else {
+      // Cercle stroke (contour)
+      const bridgeStrokeCircle = scene.add
+        .circle(x, y, 1)
+        .setStrokeStyle(5, color);
+      scene.tweens.add({
+        targets: bridgeStrokeCircle,
+        radius: 50,
+        duration: 800,
+        ease: "Cubic.easeOut",
+        onComplete: () => {
+          scene.tweens.add({
+            targets: bridgeStrokeCircle,
+            alpha: 0,
+            duration: 350,
+            onComplete: () => {
+              bridgeStrokeCircle.destroy();
+            },
+          });
+        },
+      });
+    }
   }
 
   scorePoint(ball, basket) {
-    // Vérifier si la balle est déjà dans le panier
-    if (ball.isInBasket) return; // Si elle est déjà dans le panier, ne rien faire
-
     if (this.question.isCorrectBasket(basket)) {
       this.score.addPoint();
       this.question.changeQuestion();
@@ -129,9 +190,8 @@ export default class GameScene extends Phaser.Scene {
       this.score.losePoint();
     }
 
-    ball.isInBasket = true;
-    // Réinitialiser après un court délai pour empêcher plusieurs points
-    this.time.delayedCall(500, () => {
+    // Réinitialiser l'état de collision du panier après un délai
+    this.time.delayedCall(800, () => {
       ball.isInBasket = false;
     });
   }
@@ -178,33 +238,4 @@ export default class GameScene extends Phaser.Scene {
       this.playerRight.setY(pointer.y);
     }
   }
-  // // Méthode pour gérer les interactions tactiles ou clics
-  // handlePointerDown(pointer) {
-  //   // Si la balle est en pause (soit au début, soit après un reset), relancer la balle
-  //   if (!this.isStarted) {
-  //     this.start(); // Lancer la balle si elle est en pause
-  //     return;
-  //   }
-
-  //   // Contrôle des raquettes via le clic/toucher
-  //   this.updatePaddlePosition(pointer);
-  // }
-
-  // handlePointerMove(pointer) {
-  //   if (this.isStarted) {
-  //     // Contrôle des raquettes via le mouvement du doigt ou de la souris
-  //     this.updatePaddlePosition(pointer);
-  //   }
-  // }
-
-  // // Méthode pour déplacer les paddles selon la position du clic ou toucher
-  // updatePaddlePosition(pointer) {
-  //   if (pointer.x < this.game.config.width / 2) {
-  //     // Mouvement sur la partie gauche de l'écran : contrôle du paddle gauche
-  //     this.playerLeft.setY(pointer.y);
-  //   } else {
-  //     // Mouvement sur la partie droite de l'écran : contrôle du paddle droit
-  //     this.playerRight.setY(pointer.y);
-  //   }
-  // }
 }
